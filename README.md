@@ -12,7 +12,11 @@ Moreover, I report the performance of the kernel regression with the Neural Netw
 The main result is illustrated in `report/plot_stats.pdf`.
 
 # Code Structure
+Please download data from the paper and save it under `data/raw`.
+
 - The analysis is conducted under `src`
 - Functions are defined under `R`
 - Reports are generated under `report`
+- Data is saved under `data`
+  
 
