@@ -1,0 +1,214 @@
+---
+title: "Empirics: Virtue of Complexity"
+author: "Kanji"
+output: 
+  html_document:
+    css: style_do.css
+    number_sections: yes
+    toc: yes
+    toc_depth: '3'
+    toc_float: yes
+    theme: "spacelab" #"default", "bootstrap", "cerulean", "cosmo", "darkly", "flatly",
+                 # "journal", "lumen", "paper", "readable", "sandstone", "simplex",
+                 # "spacelab", "united", "yeti"
+    highlight: "pygments" #"default", "tango", "pygments", "kate", "monochrome",
+                 # "espresso", "zenburn", "haddock", "textmate"
+    df_print: paged
+    code_folding: hide
+date: 'Last update: `r Sys.Date()`'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(cache = FALSE, echo = TRUE, fig.align = "center")
+knitr::opts_chunk$set(fig.width=12, fig.height=12) 
+color_main <- scales::viridis_pal(option = "C")(1)
+```
+
+
+```{r setting, include=FALSE}
+# ---------------------------#
+rm(list=ls())
+gc()
+gc()
+library(pacman)
+pacman::p_load(tidyverse, stringr, stringi, csv, ggplot2, readxl,
+               zoo, xts, beepr, fs, gridExtra)
+options(max.print=100000) 
+options(digits=6) 
+#----------------------------#
+path_input <- "~/Dropbox/virtue_of_complexity/data/raw"
+path_output<- "~/Dropbox/virtue_of_complexity/data/output"
+source('~/Dropbox/virtue_of_complexity/R/function_plot_stats.R')
+#----------------------------#
+```
+
+This document describes the results of the empirical experiment on the virtue of complexity using random features, as conducted in Kelly et al. (2024).
+As substantiated in Section 5 of Kelly et al. (2024), the Sharpe Ratio is expected to exhibit a double-ascent under some assumptions.
+The performance of the corresponding kernel in the limit (Neural Network Gaussian Process) is also reported.
+This is computationally feasible because the number of raw features is only fifteen.
+
+The hyperparameters are listed in the following table:
+
+| Parameters | Values | 
+| :--- | :---: |
+| $\gamma$ of RFF | 2 |
+| Number of Simulation | 500 |
+| Maximum Number of Observable Features | 600 |
+| Window Size | 12 |
+| Ridge Regularization | 1e-3, 1e-2, 1e-1, 1, 1e1, 1e2, 1e3 |
+
+Data is retrieved from the Replication Code of Kelly et al. (2024).
+All variables are scaled in the same manner with them.
+
+
+In [Section 1](#RW), the Random Fourier Feature is examined. In addition to the Normal weights, other distributions (Laplacian and Caucy) for weights are examined. 
+
+In [Section 2](#AVF), alternative activation functions (ReLU, Error Function) are examined. 
+
+# Variations in the Random Weights {#RW}
+Generate the random fourier feature with random weights of Gaussian, Laplacian and Caucy following Rahimi and Recht (2007). 
+The grey dotted line represents $c=1$.
+The black dash line represents the performance of the kernel regression with corresponding NNGP.
+
+
+As can be seen, the increasing pattern in the out-of-sample market-timing Sharpe ratio is observed in Laplacian and Caucy as well as in Gaussian.
+This is consistent with the misspecified model in Kelly et al. (2024).
+The volatility and $R^2$ converge to those of the kernel regression as expected.
+As for the mean and Sharp ratio, we observe deviations between the Neural Network with wide width and the corresponding kernel.
+The potential reason for this is the estimation error or insufficient number of samples to evaluate the statistics.
+
+
+## Gaussian
+
+```{r read_dat, include=FALSE}
+# read data
+random_feature_method <- "RFFNormal"
+df_stats <- readRDS( path_join( c(path_output, random_feature_method, 
+                           paste0("df_stats.rds")))  )
+df_kernel_stats <- readRDS( path_join( c(path_output, random_feature_method, 
+                           paste0("df_kernel_stats.rds")))  )
+```
+
+
+```{r }
+g <- plot_stats(df_stats, df_kernel_stats)
+# 
+```
+
+
+## Laplacian
+
+```{r , include=FALSE}
+# read data
+random_feature_method <- "RFFLaplace"
+df_stats <- readRDS( path_join( c(path_output, random_feature_method, 
+                           paste0("df_stats.rds")))  )
+df_kernel_stats <- readRDS( path_join( c(path_output, random_feature_method, 
+                           paste0("df_kernel_stats.rds")))  )
+```
+
+```{r }
+g <- plot_stats(df_stats, df_kernel_stats)
+
+```
+
+## Caucy
+
+```{r , include=FALSE}
+# read data
+random_feature_method <- "RFFCaucy"
+df_stats <- readRDS( path_join( c(path_output, random_feature_method, 
+                           paste0("df_stats.rds")))  )
+df_kernel_stats <- readRDS( path_join( c(path_output, random_feature_method, 
+                           paste0("df_kernel_stats.rds")))  )
+```
+
+```{r }
+g <- plot_stats(df_stats, df_kernel_stats)
+
+```
+
+#  Variations in the Activation Function {#AVF}
+Alternative activation functions (ReLU and the Error Function) are examined. 
+As the NNGP theory substantiated, the Neural Networl converges to the kernel in the limit of infinite width in some cases.
+
+In ReLU case, the corresponding NNGP is
+
+\begin{align}
+K(x_1, x_2) = 
+\frac{1}{\pi} \left( x_1^\top x_2 \left( \pi - \arccos \left( \frac{x_1^\top x_2}{\|x_1\|_2 \|x_2\|_2} \right) \right) +　\sqrt{ \|x_1\|^2_2 \|x_2\|^2_2 - ( x_1^\top x_2 )^2} \right)
+\end{align}
+
+
+In erf case, the corresponding NNGP is reported in Williams 1996 as
+
+\begin{align}
+K(x_1, x_2) = 
+\frac{2}{\pi} \arcsin \left( \frac{2 x_1^\top  x_2 }{\sqrt{1 + 2 x_1^\top  x_1} \cdot \sqrt{1 + 2 x_2^\top  x_2}} \right)
+\end{align}
+
+The grey dotted line represents $c=1$.
+The black dash line represents the performance of the kernel regression with corresponding NNGP.
+To improve the stability, I increase the number of simulation to 1000.
+To omit the extreme values, the mean across samples is computed after truncating at the upper and lower 99th percentiles.
+
+In ReLU case, $R^2$ monotonically decreases along with the model complexity.
+The norm of the coefficient converges to a value close to zero because the ridge regression achieves the minimum $l_2$ norm.
+The expected mean is negative when $c$ is greater than $1$ in the ridgeless case. 
+Thus, in ReLU case, the variance is greater than the bias.
+Moreover, the high ridge regularization achieves positive mean and Sharp ratio. 
+This further supports that the variance reduction is important even it damages the bias.
+
+We do not observe the double-ascent property in the ReLU case.
+Indeed, the Sharp ratio decreases as the model becomes complex. 
+Moreover, the expected mean decreases when $c$ is greater than $1$ in the ridgeless case. 
+This looks similar to the theoretical pattern in the correctly specified case of Kelly et al. (2024).
+Thus, I derive this to three potential violations of assumptions.
+
+-   The random features are not part of the true Data Generating Process (DGP). The Gaussian, Laplacian and Caucy kernel may be closer to the DGP than NNGP of ReLU and erf.
+-   The map from the independent random vectors to the return is nonlinear. This case is discussed in Hastie et al., (2022). 
+-   The true DGP has only finite number of factors, which results in the specified case.
+
+The Sharp ratio achieved by the kernel in the ReLU case is negative. 
+This supports the first and second hypotheses that the true DGP is irrelevant of the kernel corresponding to ReLU.
+
+
+In the erf case, we observe that the high complexity and regularization imporve the $R^2$ and Sharp ratio. 
+This result is consistent with the misspecified model in Kelly et al. (2024).
+
+## ReLU acitvation 
+
+```{r , include=FALSE}
+# read data
+random_feature_method <- "ReLU"
+df_stats <- readRDS( path_join( c(path_output, random_feature_method, 
+                           paste0("df_stats.rds")))  )
+df_kernel_stats <- readRDS( path_join( c(path_output, random_feature_method, 
+                           paste0("df_kernel_stats.rds")))  )
+```
+
+
+```{r }
+g <- plot_stats(df_stats, df_kernel_stats)
+
+```
+
+## Error Function acitvation
+
+
+```{r , include=FALSE}
+# read data
+random_feature_method <- "erf"
+df_stats <- readRDS( path_join( c(path_output, random_feature_method,
+                           paste0("df_stats.rds")))  )
+df_kernel_stats <- readRDS( path_join( c(path_output, random_feature_method, 
+                           paste0("df_kernel_stats.rds")))  )
+```
+
+
+```{r }
+g <- plot_stats(df_stats, df_kernel_stats)
+
+```
+
+
