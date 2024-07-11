@@ -21,6 +21,7 @@ date: 'Last update: `r Sys.Date()`'
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(cache = FALSE, echo = TRUE, fig.align = "center")
 knitr::opts_chunk$set(fig.width=12, fig.height=12) 
+knitr::opts_chunk$set(dev="png")
 color_main <- scales::viridis_pal(option = "C")(1)
 ```
 
@@ -90,7 +91,7 @@ df_kernel_stats <- readRDS( path_join( c(path_output, random_feature_method,
 ```
 
 
-```{r }
+```{r , dpi=50}
 g <- plot_stats(df_stats, df_kernel_stats)
 # 
 ```
@@ -107,7 +108,7 @@ df_kernel_stats <- readRDS( path_join( c(path_output, random_feature_method,
                            paste0("df_kernel_stats.rds")))  )
 ```
 
-```{r }
+```{r, dpi=50}
 g <- plot_stats(df_stats, df_kernel_stats)
 
 ```
@@ -123,7 +124,7 @@ df_kernel_stats <- readRDS( path_join( c(path_output, random_feature_method,
                            paste0("df_kernel_stats.rds")))  )
 ```
 
-```{r }
+```{r , dpi=50}
 g <- plot_stats(df_stats, df_kernel_stats)
 
 ```
@@ -188,7 +189,7 @@ df_kernel_stats <- readRDS( path_join( c(path_output, random_feature_method,
 ```
 
 
-```{r }
+```{r , dpi=50}
 g <- plot_stats(df_stats, df_kernel_stats)
 
 ```
@@ -206,7 +207,7 @@ df_kernel_stats <- readRDS( path_join( c(path_output, random_feature_method,
 ```
 
 
-```{r }
+```{r , dpi=50}
 g <- plot_stats(df_stats, df_kernel_stats)
 
 ```
