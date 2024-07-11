@@ -2,7 +2,7 @@
 
 This repository analyzes the empirical performance of the ridgeless regression in the finance applicaiton based on 
 
-Kelly, Bryan T. and Malamud, Semyon and Zhou, Kangying, The Virtue of Complexity in Return Prediction (December 13, 2021). Swiss Finance Institute Research Paper No. 21-90, Journal of Finance, forthcoming, Available at SSRN: https://ssrn.com/abstract=3984925 or http://dx.doi.org/10.2139/ssrn.3984925.
+KELLY, B., MALAMUD, S. and ZHOU, K. (2024), The Virtue of Complexity in Return Prediction. J Finance, 79: 459-503. https://doi.org/10.1111/jofi.13298
 
 The out-of-sample performance of the timing strategy computed from the ridgeless regression is reported with different model complexity and ridge regularization.
 The model complexity here is defined as the number of random features used to predict the return.
